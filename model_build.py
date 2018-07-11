@@ -268,7 +268,7 @@ def train(model_name, model, train_x, train_y, batch_size=256, epochs=32, idicat
     # print('min=====', np.min(x))
     y = train_y[:, train_y.shape[1] - 1]
     temp_dir = fileUtils.temp_dir
-    file_name = '%s_value_%s_shape_%s_%s_1.0_.hf5' % (model_name, 0, idicator_name, datetime.datetime.now().strftime("%Y%m%d%H"))
+    file_name = '%s_value_%s_shape_%s_%s_1.0_.hf5' % (model_name, 0, idicator_name, datetime.datetime.now().strftime("%Y%m%d%H%S"))
     path = os.path.abspath(os.path.join(temp_dir, file_name))
     checkpoint = ModelCheckpoint(path, monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
     # tensorboad = Tensorboard(log_dir='log')

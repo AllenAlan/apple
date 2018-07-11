@@ -191,13 +191,19 @@ def idicator(df):
                       'S_DQ_NLSR',  # 多空比率净额
                       'S_K_ENTITY',
                       'S_K_UP_SHADOW',
+
                       'S_K_DOWN_SHADOW',
+                      'S_DQ_PVT',   # 价量趋势(PVT)指标
+                      'S_DQ_60_LOW',
+                      'S_DQ_60_HIGH',
                       ]
     num = 0
     data = []
     for name, group in df.groupby('S_INFO_WINDCODE'):
         num = num + 1
         print(name, '-------------', num)
+        s_dq_60_low = group['S_DQ_ADJLOW'].rolling(window=60).min()
+        s_dq_60_high = group['S_DQ_ADJHIGH'].rolling(window=60).max()
         s_dq_avgprice = group['S_DQ_AVGPRICE'] * group['S_DQ_ADJFACTOR']
         s_dq_5_volume = group['S_DQ_VOLUME'].rolling(window=5).mean()
         s_dq_ratio = group['S_DQ_VOLUME'] / s_dq_5_volume
@@ -222,6 +228,8 @@ def idicator(df):
         s_k_entity = group['S_DQ_ADJCLOSE'] - group['S_DQ_ADJOPEN']
         s_k_up_shadow = group['S_DQ_ADJHIGH'] - group[['S_DQ_ADJCLOSE', 'S_DQ_ADJOPEN']].apply(lambda row: row['S_DQ_ADJCLOSE'] if row['S_DQ_ADJCLOSE'] > row['S_DQ_ADJOPEN'] else row['S_DQ_ADJOPEN'], axis=1)
         s_k_down_shadow = group[['S_DQ_ADJCLOSE', 'S_DQ_ADJOPEN']].apply(lambda row: row['S_DQ_ADJCLOSE'] if row['S_DQ_ADJCLOSE'] < row['S_DQ_ADJOPEN'] else row['S_DQ_ADJOPEN'], axis=1) - group['S_DQ_ADJLOW']
+        s_dq_pvt = (group['S_DQ_ADJCLOSE'] - group['S_DQ_ADJCLOSE'].shift(1))/group['S_DQ_ADJCLOSE'] * group['S_DQ_VOLUME']
+
 
         # ------------------------------------------------------------------------
         # # 乖离率 N日BIAS=（当日收盘价—N日移动平均价）÷N日移动平均价×100
@@ -258,6 +266,9 @@ def idicator(df):
         cell.insert(24, 'S_K_ENTITY', s_k_entity)
         cell.insert(25, 'S_K_UP_SHADOW', s_k_up_shadow)
         cell.insert(26, 'S_K_DOWN_SHADOW', s_k_down_shadow)
+        cell.insert(27, 'S_DQ_PVT', s_dq_pvt)
+        cell.insert(28, 'S_DQ_60_LOW', s_dq_60_low)
+        cell.insert(29, 'S_DQ_60_HIGH', s_dq_60_high)
         len_d = 50 if cell.shape[0] > 50 else cell.shape[0]
         cell.drop(cell.index[range(len_d)], inplace=True)
         data.extend(cell.values)

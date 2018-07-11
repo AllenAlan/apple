@@ -56,6 +56,9 @@ data_row = 20
 #  idicator    #      25  # 'S_K_ENTITY',                       #  K线实体
 #  idicator    #      26  # 'S_K_UP_SHADOW',                    #  K线上影线
 #  idicator    #      27  # 'S_K_DOWN_SHADOW',                  #  K线下影线
+#  idicator    #      28  # 'S_DQ_PVT',                         #  价量趋势(PVT)指标
+#  idicator    #      29  # 'S_DQ_60_LOW',                      #  60日最低价
+#  idicator    #      30  # 'S_DQ_60_HIGH',                     #  60日最高价
 
 
 def train_prepare(start_date=19900101, end_date=None, predict_split=None):
@@ -94,8 +97,8 @@ def train_prepare(start_date=19900101, end_date=None, predict_split=None):
             start_index = np.argwhere(trade_dates == start_date)
             klc_end_date = trade_dates[start_index + data_row + 1]
             k_line_scale_index = np.arange(25, 28)
-            idicator_scale_index = [12, 20, 21, 22, 23, 24, 25]
-            price_scale_index = np.arange(2, 8)
+            idicator_scale_index = [12, 20, 21, 22, 23, 24, 25, 28]
+            price_scale_index = [2, 3, 4, 5, 6, 7, 29, 30]
             rate_scale_index = np.arange(13, 16)
             count_scale_index = np.arange(18, 20)
             idicator_name = '12-20-21-22-23-24-25~27-2~8-13~16-18~20'
@@ -131,7 +134,7 @@ def train_prepare(start_date=19900101, end_date=None, predict_split=None):
 
 
 def idicator_cell(cell, i, x_arr, price_scale_index, rate_scale_index, count_scale_index, idicator_scale_index, k_line_scale_index):
-    price_scale = scale(x_arr[:, price_scale_index].flatten()).reshape(-1, 6)
+    price_scale = scale(x_arr[:, price_scale_index].flatten()).reshape(-1, price_scale_index.shape[0])
     rate_scale = x_arr[:, rate_scale_index]
     k_line_scale = scale(x_arr[:, k_line_scale_index].flatten()).reshape(-1, 3)
     count_scale = scale(x_arr[:, count_scale_index].flatten()).reshape(-1, 2)
@@ -221,4 +224,3 @@ def load_train_batch_datas():
             test_y = np.concatenate((test_y, batch_data['test_y']), axis=0)
     return train_x, train_y, test_x, test_y
 
-# train_prepare(20130101, 20180103, 20170101)
